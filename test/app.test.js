@@ -56,6 +56,17 @@ test('GET /slug with separator=_ joins words with underscores', async () => {
   assert.deepEqual(await res.json(), { text: 'Night Gate, Demo!', slug: 'night_gate_demo' });
 });
 
+test('GET /slug with separator=- is the default slug', async () => {
+  const res = await fetch(`${base}/slug?text=${encodeURIComponent('Night Gate')}&separator=-`);
+  assert.equal(res.status, 200);
+  assert.deepEqual(await res.json(), { text: 'Night Gate', slug: 'night-gate' });
+});
+
+test('GET /slug with an empty separator is a 400', async () => {
+  const res = await fetch(`${base}/slug?text=hello&separator=`);
+  assert.equal(res.status, 400);
+});
+
 test('GET /slug with an unsupported separator is a 400', async () => {
   const res = await fetch(`${base}/slug?text=hello&separator=${encodeURIComponent('/')}`);
   assert.equal(res.status, 400);

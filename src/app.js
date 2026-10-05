@@ -1,13 +1,12 @@
 import { readFileSync } from 'node:fs';
 import { createServer } from 'node:http';
-import { slugify } from './slug.js';
+import { SEPARATORS, slugify } from './slug.js';
 
 // Read once at start-up: the running build reports the version it shipped as.
 const pkg = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8'));
 const VERSION = { name: pkg.name, version: pkg.version };
 
 const MAX_TEXT_LENGTH = 200;
-const SEPARATORS = ['-', '_'];
 
 function send(res, status, body) {
   res.writeHead(status, { 'content-type': 'application/json' });

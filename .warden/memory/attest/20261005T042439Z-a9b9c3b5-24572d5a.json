@@ -1,0 +1,81 @@
+{
+  "schema": 1,
+  "source": "attest",
+  "sha": "a9b9c3b596cbc82d3cdeca34c0485d44755086fc",
+  "base_sha": "d79e31ce092199fecb675573e02dc4fefd45a4f0",
+  "rules_version": "958ad70ff7a5",
+  "reviewed_at": "2026-10-05T04:24:39+00:00",
+  "range_patch_ids": [
+    "e5e3a2f0a40f984343c75639af00b0e9bcfb9b06"
+  ],
+  "verdict": "findings-open",
+  "reviewers": [
+    {
+      "role": "code-reviewer",
+      "agent": "general-purpose subagent (claude-opus-5-5), finder",
+      "round": 1,
+      "returned": true,
+      "findings": 2,
+      "output": "code-reviewer.json",
+      "outcome": "reviewed-findings"
+    },
+    {
+      "role": "cross-examiner",
+      "agent": "general-purpose subagent (claude-opus-5-5), judge",
+      "round": 1,
+      "returned": true,
+      "findings": 2,
+      "output": "cross-examiner.json",
+      "outcome": "reviewed-findings"
+    }
+  ],
+  "roster_verification": "verified",
+  "round_binding": "bound",
+  "base_ancestry": "ancestor",
+  "records": [
+    {
+      "ts": "2026-10-05T04:24:39+00:00",
+      "seq": 0,
+      "source": "attest",
+      "sha": "a9b9c3b596cbc82d3cdeca34c0485d44755086fc",
+      "base_sha": "d79e31ce092199fecb675573e02dc4fefd45a4f0",
+      "rule_id": "unmapped:unvalidated-function-argument",
+      "tags": [
+        "input-validation"
+      ],
+      "dir_prefix": "src",
+      "file": "src/slug.js",
+      "line": 1,
+      "severity": "LOW",
+      "finding": "slugify now takes an arbitrary `separator` but only the HTTP handler restricts it to '-' or '_'. The trim regex hard-codes [-_], so any other separator is left at the ends, and the separator is used as a String.replace replacement string, so `$`-patterns get expanded. Measured: slugify(' a b ', '.') returns '.a.b.' and slugify('a b', '$&') returns 'a b'. The HTTP path cannot hit this because app.js validates against SEPARATORS. It only affects direct callers of the exported function.",
+      "evidence": "export function slugify(text, separator = '-') { ... .replace(/[^a-z0-9]+/g, separator)\n    .replace(/^[-_]+|[-_]+$/g, '');",
+      "status": "confirmed",
+      "origin": "interactive",
+      "lens": "code-reviewer",
+      "round": 1,
+      "id": "2155f2cf5212c7e1"
+    },
+    {
+      "ts": "2026-10-05T04:24:39+00:00",
+      "seq": 1,
+      "source": "attest",
+      "sha": "a9b9c3b596cbc82d3cdeca34c0485d44755086fc",
+      "base_sha": "d79e31ce092199fecb675573e02dc4fefd45a4f0",
+      "rule_id": "unmapped:test-name-overclaims",
+      "tags": [
+        "test-overclaims"
+      ],
+      "dir_prefix": "test",
+      "file": "test/slug.test.js",
+      "line": 25,
+      "severity": "LOW",
+      "finding": "The test says it trims a separator 'of either kind', but every non-alphanumeric run, '--' included, is rewritten to '_' before the trim runs. So only the '_' trim is exercised, and a '-' never reaches the trim step. No test covers an explicit `separator=-` or an empty `separator=` (which correctly returns 400) at the HTTP layer.",
+      "evidence": "test('trims a leading or trailing separator of either kind', () => {\n  assert.equal(slugify('--Hello__World--', '_'), 'hello_world');",
+      "status": "confirmed",
+      "origin": "interactive",
+      "lens": "code-reviewer",
+      "round": 1,
+      "id": "dd01882bd1644bfe"
+    }
+  ]
+}
