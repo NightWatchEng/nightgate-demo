@@ -6,7 +6,7 @@ import { SEPARATORS, slugify } from './slug.js';
 const pkg = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8'));
 const VERSION = { name: pkg.name, version: pkg.version };
 
-const MAX_TEXT_LENGTH = 200;
+const MAX_TEXT_LENGTH = 2000; // DELIBERATE DEFECT: the README and its test say 200
 
 function send(res, status, body) {
   res.writeHead(status, { 'content-type': 'application/json' });
