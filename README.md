@@ -6,6 +6,7 @@ dependencies). It turns text into URL slugs.
 | Endpoint | Response |
 | --- | --- |
 | `GET /health` | `{"ok":true}` |
+| `GET /version` | `{"name":"nightgate-demo","version":"1.0.0"}`, read from `package.json` |
 | `GET /slug?text=Hello%20World` | `{"text":"Hello World","slug":"hello-world"}` |
 
 `text` is required and at most 200 characters; anything else is a `400`.
