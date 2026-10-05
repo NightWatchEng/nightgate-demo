@@ -1,0 +1,36 @@
+{
+  "schema": 1,
+  "source": "attest",
+  "sha": "fdbcc02cdc514d44d440c4bd538329c59319f1ea",
+  "base_sha": "b151e12a0c2ea8b2f2ff81ed5f16e8523fc14740",
+  "rules_version": "958ad70ff7a5",
+  "reviewed_at": "2026-10-05T02:17:14+00:00",
+  "range_patch_ids": [
+    "86220b237bc369a8224d44a402af254c23f0c858"
+  ],
+  "verdict": "clean",
+  "reviewers": [
+    {
+      "role": "code-reviewer",
+      "agent": "claude-opus-5-5 general-purpose subagent, independent context (platform default finder; no graph.yaml)",
+      "round": 1,
+      "returned": true,
+      "findings": 0,
+      "output": "code-reviewer.json",
+      "outcome": "reviewed-clean"
+    },
+    {
+      "role": "cross-examiner",
+      "agent": "claude-opus-5-5 general-purpose subagent, independent context (platform default judge; no graph.yaml)",
+      "round": 1,
+      "returned": true,
+      "findings": 0,
+      "output": "cross-examiner.json",
+      "outcome": "reviewed-clean"
+    }
+  ],
+  "roster_verification": "verified",
+  "round_binding": "bound",
+  "base_ancestry": "ancestor",
+  "records": []
+}
