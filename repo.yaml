@@ -1,0 +1,34 @@
+# Written by `warden init`. The single source of truth for repo facts:
+# components, risk tiers, verify commands, review settings. warden
+# schema-validates it on every load and fails closed.
+version: 1
+repo: "nightgate-demo"
+
+# The platform release this repo's gate runs, and the tag CI installs.
+platform:
+  pin: v3.0.1
+
+components:
+  node: {path: ".", lang: node, description: "detected from package.json"}
+
+# First glob match wins, top to bottom; anything unmatched defaults to LOW.
+risk_tiers:
+  - {glob: "repo.yaml", tier: HIGH, reason: "the gate policy itself"}
+  - {glob: ".warden/**", tier: HIGH, reason: "the rules and skills policy the gate enforces"}
+  - {glob: ".github/**", tier: HIGH, reason: "CI runs the gate from here"}
+  - {glob: "**", tier: LOW}
+
+# Deterministic gates, detected from the manifests. Review them: they run
+# locally and in CI exactly as written.
+verify:
+  node:
+    - {run: "npm install --no-package-lock"}
+    - {run: "npm test"}
+
+# Repair rounds a delivery may run: 1 to the platform cap of 2.
+repair:
+  budget: 2
+
+review:
+  rules_dir: .warden/rules
+  blocking_severities: [HIGH]
