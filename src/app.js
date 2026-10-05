@@ -1,5 +1,10 @@
+import { readFileSync } from 'node:fs';
 import { createServer } from 'node:http';
 import { slugify } from './slug.js';
+
+// Read once at start-up: the running build reports the version it shipped as.
+const pkg = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8'));
+const VERSION = { name: pkg.name, version: pkg.version };
 
 const MAX_TEXT_LENGTH = 200;
 
@@ -18,6 +23,10 @@ function handle(req, res) {
 
   if (url.pathname === '/health') {
     return send(res, 200, { ok: true });
+  }
+
+  if (url.pathname === '/version') {
+    return send(res, 200, VERSION);
   }
 
   if (url.pathname === '/slug') {

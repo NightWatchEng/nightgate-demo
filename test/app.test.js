@@ -1,5 +1,6 @@
 import { test, before, after } from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import { createApp } from '../src/app.js';
 
 let server;
@@ -17,6 +18,19 @@ test('GET /health reports ok', async () => {
   const res = await fetch(`${base}/health`);
   assert.equal(res.status, 200);
   assert.deepEqual(await res.json(), { ok: true });
+});
+
+test('GET /version reports the name and version in package.json', async () => {
+  const pkg = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8'));
+  const res = await fetch(`${base}/version`);
+  assert.equal(res.status, 200);
+  assert.equal(res.headers.get('content-type'), 'application/json');
+  assert.deepEqual(await res.json(), { name: pkg.name, version: pkg.version });
+});
+
+test('POST /version is a 405', async () => {
+  const res = await fetch(`${base}/version`, { method: 'POST' });
+  assert.equal(res.status, 405);
 });
 
 test('GET /slug returns the slug of text', async () => {
