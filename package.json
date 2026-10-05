@@ -1,0 +1,16 @@
+{
+  "name": "nightgate-demo",
+  "version": "1.0.0",
+  "description": "A small Node service whose merges pass through Nightgate.",
+  "license": "MIT",
+  "private": true,
+  "type": "module",
+  "main": "src/server.js",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node src/server.js",
+    "test": "node --test"
+  }
+}
