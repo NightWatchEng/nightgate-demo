@@ -203,7 +203,15 @@ jobs:
           fi
       - name: warden verify --scope node
         shell: bash
-        run: warden verify --scope node
+        run: |
+          set -uo pipefail
+          out="$RUNNER_TEMP/verify-node.txt"
+          status=0
+          warden verify --scope node > "$out" 2>&1 || status=$?
+          cat "$out"
+          { echo '### warden verify --scope node';
+            echo '```'; cat "$out"; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+          exit "$status"
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
         if: always()
         with:
@@ -226,19 +234,14 @@ jobs:
         with:
           fetch-depth: 0
           persist-credentials: false
-      - name: require the install and verify jobs
+      - name: require the install job
         shell: bash
         env:
           INSTALL_RESULT: ${{ needs.install.result }}
-          VERIFY_RESULT: ${{ needs.verify.result }}
         run: |
           if [ "$INSTALL_RESULT" != success ]; then
             echo "warden gate: the install job ended $INSTALL_RESULT, so the gate DID NOT RUN; its log says why." >&2
             exit 2
-          fi
-          if [ "$VERIFY_RESULT" != success ]; then
-            echo "warden gate: the verify job ended $VERIFY_RESULT; the gate fails until every verify scope passes." >&2
-            exit 1
           fi
       - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7  # v10.2.0
         with:
@@ -249,6 +252,7 @@ jobs:
           name: warden-wheel
           path: ${{ runner.temp }}/warden-wheel
       - name: install warden from the install job's wheel
+        id: warden
         shell: bash
         env:
           WHEEL: ${{ needs.install.outputs.wheel }}
@@ -266,11 +270,13 @@ jobs:
         shell: bash
         run: warden take --from "$RUNNER_TEMP/warden-verify"
       - name: warden review
+        if: ${{ !cancelled() && steps.warden.outcome == 'success' }}
         shell: bash
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: warden review --no-project-checkers --event "$GITHUB_EVENT_PATH"
       - name: proportionate review tier
+        if: ${{ !cancelled() && steps.warden.outcome == 'success' }}
         shell: bash
         env:
           BASE_REF: ${{ github.base_ref }}
@@ -284,9 +290,41 @@ jobs:
           { echo '### proportionate review tier';
             echo '```'; cat "$out"; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
           exit "$status"
+      - name: pre-PR review attestation
+        if: ${{ !cancelled() && steps.warden.outcome == 'success' }}
+        shell: bash
+        env:
+          HEAD_REPO: ${{ github.event.pull_request.head.repo.full_name }}
+          REPOSITORY: ${{ github.repository }}
+          BASE_REF: ${{ github.base_ref }}
+        run: |
+          set -uo pipefail
+          if [ "$HEAD_REPO" != "$REPOSITORY" ]; then
+            echo "fork PR: attestation not required (the orchestrated review cannot run here)"
+            exit 0
+          fi
+          out="$RUNNER_TEMP/attest-check.txt"
+          status=0
+          warden attest check --base "origin/$BASE_REF" \
+            > "$out" 2>&1 || status=$?
+          cat "$out"
+          { echo '### pre-PR review attestation';
+            echo '```'; cat "$out"; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+          exit "$status"
       - name: warden certify
+        if: ${{ !cancelled() && steps.warden.outcome == 'success' }}
         shell: bash
         run: warden certify --level 3
+      - name: require the verify job
+        if: ${{ !cancelled() && needs.install.result == 'success' }}
+        shell: bash
+        env:
+          VERIFY_RESULT: ${{ needs.verify.result }}
+        run: |
+          if [ "$VERIFY_RESULT" != success ]; then
+            echo "warden gate: the verify job ended $VERIFY_RESULT; the gate fails until every verify scope passes." >&2
+            exit 1
+          fi
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
         if: always()
         with:

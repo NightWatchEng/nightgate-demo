@@ -1,0 +1,60 @@
+{
+  "schema": 1,
+  "source": "attest",
+  "sha": "e816e8e499ab08fa9d3f2b09f2eaf0b4a152a7e6",
+  "base_sha": "69a6e4e4aaa142c5d07963f568e22e937db0c0c2",
+  "rules_version": "958ad70ff7a5",
+  "reviewed_at": "2026-10-05T04:18:25+00:00",
+  "range_patch_ids": [
+    "ac60ed38e8d5e813a4d468fce56946aa8cd1f139"
+  ],
+  "verdict": "clean",
+  "reviewers": [
+    {
+      "role": "code-reviewer",
+      "agent": "general-purpose subagent (claude-opus-5-5), finder",
+      "round": 1,
+      "returned": true,
+      "findings": 1,
+      "output": "code-reviewer.json",
+      "outcome": "reviewed-findings"
+    },
+    {
+      "role": "cross-examiner",
+      "agent": "general-purpose subagent (claude-opus-5-5), judge",
+      "round": 1,
+      "returned": true,
+      "findings": 1,
+      "output": "cross-examiner.json",
+      "outcome": "reviewed-findings"
+    }
+  ],
+  "roster_verification": "verified",
+  "round_binding": "bound",
+  "base_ancestry": "ancestor",
+  "records": [
+    {
+      "ts": "2026-10-05T04:18:25+00:00",
+      "seq": 0,
+      "source": "attest",
+      "sha": "e816e8e499ab08fa9d3f2b09f2eaf0b4a152a7e6",
+      "base_sha": "69a6e4e4aaa142c5d07963f568e22e937db0c0c2",
+      "rule_id": "unmapped:stale-header-comment",
+      "tags": [
+        "docs-drift"
+      ],
+      "dir_prefix": ".github/workflows",
+      "file": ".github/workflows/warden.yml",
+      "line": 33,
+      "severity": "LOW",
+      "finding": "The re-copy changed the gate job's control flow, but the file's header comment was left in its v3.0.1 form. The gate no longer stops when verify fails: review, the new fail-closed `warden attest check` step and certify each run whatever verify said, and the verify result is enforced last by 'require the verify job'. The header still describes the gate as one that 'fails unless install and verify succeeded' and never mentions the attestation check or the fork exemption. The v3.0.2 `warden init` reference rewrites this paragraph, so the file now differs from what 3.0.2 emits, and a reader of the header is misled about when the gate job stops and what it enforces.",
+      "evidence": "line 33: `#          install job recorded, and fails unless install and verify succeeded.`; the v3.0.2 reference has `install job recorded, and does not run unless install succeeded.` / `Review, the attestation check (`warden attest check`, fail-closed;` / `a fork pull request is exempt) and certify each run whatever verify` / `or another of them said, so a pull request shows every refusal; the` / `gate then fails if verify did not succeed.`; and the new steps at lines 293-327 (`- name: pre-PR review attestation`, `- name: require the verify job`)",
+      "status": "dismissed-with-reason",
+      "origin": "interactive",
+      "reason": "The adopter repair (Installation section 1, release notes v3.0.2) copies only the gate job and the warden verify --scope step; the header comment is outside both, so it is left as 3.0.1 wrote it and the gap is recorded as a docs defect on agentops-hy6o.33.",
+      "lens": "code-reviewer",
+      "round": 1,
+      "id": "091ede8d70910524"
+    }
+  ]
+}
