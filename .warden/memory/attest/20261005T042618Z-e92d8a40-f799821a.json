@@ -1,0 +1,82 @@
+{
+  "schema": 1,
+  "source": "attest",
+  "sha": "e92d8a40c3d69c504445650533efb2d13234e7d9",
+  "base_sha": "d79e31ce092199fecb675573e02dc4fefd45a4f0",
+  "rules_version": "958ad70ff7a5",
+  "reviewed_at": "2026-10-05T04:26:18+00:00",
+  "range_patch_ids": [
+    "de6400e4216ff65eb1a866db79190295476266bb",
+    "e5e3a2f0a40f984343c75639af00b0e9bcfb9b06"
+  ],
+  "verdict": "clean",
+  "reviewers": [
+    {
+      "role": "code-reviewer",
+      "agent": "general-purpose subagent (claude-opus-5-5), finder, round-2 re-review",
+      "round": 2,
+      "returned": true,
+      "findings": 2,
+      "output": "code-reviewer.json",
+      "outcome": "reviewed-findings"
+    },
+    {
+      "role": "cross-examiner",
+      "agent": "general-purpose subagent (claude-opus-5-5), judge",
+      "round": 2,
+      "returned": true,
+      "findings": 2,
+      "output": "cross-examiner.json",
+      "outcome": "reviewed-findings"
+    }
+  ],
+  "roster_verification": "verified",
+  "round_binding": "bound",
+  "base_ancestry": "ancestor",
+  "records": [
+    {
+      "ts": "2026-10-05T04:26:18+00:00",
+      "seq": 0,
+      "source": "attest",
+      "sha": "e92d8a40c3d69c504445650533efb2d13234e7d9",
+      "base_sha": "d79e31ce092199fecb675573e02dc4fefd45a4f0",
+      "rule_id": "unmapped:unvalidated-function-argument",
+      "tags": [
+        "input-validation"
+      ],
+      "dir_prefix": "src",
+      "file": "src/slug.js",
+      "line": 1,
+      "severity": "LOW",
+      "finding": "slugify now takes an arbitrary `separator` but only the HTTP handler restricts it to '-' or '_'. The trim regex hard-codes [-_], so any other separator is left at the ends, and the separator is used as a String.replace replacement string, so `$`-patterns get expanded. Measured: slugify(' a b ', '.') returns '.a.b.' and slugify('a b', '$&') returns 'a b'. The HTTP path cannot hit this because app.js validates against SEPARATORS. It only affects direct callers of the exported function.",
+      "evidence": "Repair e92d8a4, src/slug.js:1-6: SEPARATORS = ['-', '_'] now lives in slug.js and slugify throws RangeError(`separator must be one of: -, _`) before any replace runs; app.js imports the same list, so handler and function share one source of truth. Measured at e92d8a4: slugify(' a b ', '.') and slugify('a b', '$&') both throw RangeError (regression test 'refuses a separator other than - or _', test/slug.test.js:33-36); slugify(' a b ','-') -> 'a-b', ('_') -> 'a_b', default -> 'a-b'. Since only - and _ can reach the replace, the hard-coded [-_] trim and $-expansion are no longer reachable. npm test: 20 pass, 0 fail.",
+      "status": "fixed",
+      "origin": "interactive",
+      "lens": "code-reviewer",
+      "round": 2,
+      "id": "4a1d344d0887dcc0"
+    },
+    {
+      "ts": "2026-10-05T04:26:18+00:00",
+      "seq": 1,
+      "source": "attest",
+      "sha": "e92d8a40c3d69c504445650533efb2d13234e7d9",
+      "base_sha": "d79e31ce092199fecb675573e02dc4fefd45a4f0",
+      "rule_id": "unmapped:test-name-overclaims",
+      "tags": [
+        "test-overclaims"
+      ],
+      "dir_prefix": "test",
+      "file": "test/slug.test.js",
+      "line": 25,
+      "severity": "LOW",
+      "finding": "The test says it trims a separator 'of either kind', but every non-alphanumeric run, '--' included, is rewritten to '_' before the trim runs. So only the '_' trim is exercised, and a '-' never reaches the trim step. No test covers an explicit `separator=-` or an empty `separator=` (which correctly returns 400) at the HTTP layer.",
+      "evidence": "Repair e92d8a4: the test is renamed 'trims a leading or trailing underscore separator' (test/slug.test.js:25), which is what it exercises; a new test 'trims a leading or trailing hyphen separator' (test/slug.test.js:29-31) asserts slugify('__Hello--World__', '-') === 'hello-world', so a '-' now reaches the trim step. test/app.test.js adds 'GET /slug with separator=- is the default slug' (200, slug 'night-gate') and 'GET /slug with an empty separator is a 400'. All pass under npm test (20/20).",
+      "status": "fixed",
+      "origin": "interactive",
+      "lens": "code-reviewer",
+      "round": 2,
+      "id": "feeabe77128e9b95"
+    }
+  ]
+}
