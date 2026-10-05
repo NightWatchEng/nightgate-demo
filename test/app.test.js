@@ -83,3 +83,27 @@ test('non-GET methods are a 405', async () => {
   assert.equal(res.status, 405);
   assert.equal(res.headers.get('allow'), 'GET');
 });
+
+test('every response carries a generated x-request-id', async () => {
+  const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
+  const ok = await fetch(`${base}/health`);
+  const missing = await fetch(`${base}/nope`);
+  const refused = await fetch(`${base}/health`, { method: 'POST' });
+  const ids = [ok, missing, refused].map((res) => res.headers.get('x-request-id'));
+  for (const id of ids) assert.match(id, uuid);
+  assert.equal(new Set(ids).size, ids.length);
+});
+
+test('a well-formed x-request-id from the caller is echoed back', async () => {
+  const res = await fetch(`${base}/health`, { headers: { 'x-request-id': 'abc-123_X.y' } });
+  assert.equal(res.headers.get('x-request-id'), 'abc-123_X.y');
+});
+
+test('a malformed or overlong x-request-id is replaced, not echoed', async () => {
+  for (const given of ['has space', 'semi;colon', 'a'.repeat(65)]) {
+    const res = await fetch(`${base}/health`, { headers: { 'x-request-id': given } });
+    const id = res.headers.get('x-request-id');
+    assert.notEqual(id, given);
+    assert.match(id, /^[0-9a-f-]{36}$/);
+  }
+});

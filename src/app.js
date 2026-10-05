@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { createServer } from 'node:http';
 import { SEPARATORS, slugify } from './slug.js';
@@ -8,12 +9,22 @@ const VERSION = { name: pkg.name, version: pkg.version };
 
 const MAX_TEXT_LENGTH = 200;
 
+// A caller's id is echoed only when it is short and plain, so it is safe to
+// log and to put back in a header; anything else gets a fresh one.
+const REQUEST_ID = /^[A-Za-z0-9._-]{1,64}$/;
+
+function requestId(req) {
+  const given = req.headers['x-request-id'];
+  return typeof given === 'string' && REQUEST_ID.test(given) ? given : randomUUID();
+}
+
 function send(res, status, body) {
   res.writeHead(status, { 'content-type': 'application/json' });
   res.end(JSON.stringify(body));
 }
 
 function handle(req, res) {
+  res.setHeader('x-request-id', requestId(req));
   const url = new URL(req.url, 'http://localhost');
 
   if (req.method !== 'GET') {

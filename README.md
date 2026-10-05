@@ -13,6 +13,10 @@ dependencies). It turns text into URL slugs.
 `-` (the default) or `_`, as in `GET /slug?text=Hello%20World&separator=_`,
 which returns `"slug":"hello_world"`. Anything else is a `400`.
 
+Every response carries an `x-request-id` header. A caller's own
+`x-request-id` is echoed back when it is 1 to 64 characters of letters,
+digits, `.`, `_` or `-`; otherwise the service generates a UUID.
+
 ## Run it
 
 ```sh
