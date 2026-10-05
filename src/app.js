@@ -1,7 +1,7 @@
 import { createServer } from 'node:http';
 import { slugify } from './slug.js';
 
-const MAX_TEXT_LENGTH = 200;
+const MAX_TEXT_LENGTH = 2000; // DELIBERATE DEFECT: the README and its test say 200
 
 function send(res, status, body) {
   res.writeHead(status, { 'content-type': 'application/json' });
