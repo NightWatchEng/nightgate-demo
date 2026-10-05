@@ -1,1 +1,6 @@
 node_modules/
+
+# warden: evidence run dirs, derived review-memory state, build output
+.warden/out/
+.warden/memory/findings.jsonl
+.warden/memory/gate/
