@@ -6,7 +6,7 @@ repo: "nightgate-demo"
 
 # The platform release this repo's gate runs, and the tag CI installs.
 platform:
-  pin: v3.0.2
+  pin: v3.0.3
 
 components:
   node: {path: ".", lang: node, description: "detected from package.json"}

@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { createServer } from 'node:http';
-import { slugify } from './slug.js';
+import { SEPARATORS, slugify } from './slug.js';
 
 // Read once at start-up: the running build reports the version it shipped as.
 const pkg = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8'));
@@ -37,7 +37,11 @@ function handle(req, res) {
     if (text.length > MAX_TEXT_LENGTH) {
       return send(res, 400, { error: `text must be at most ${MAX_TEXT_LENGTH} characters` });
     }
-    return send(res, 200, { text, slug: slugify(text) });
+    const separator = url.searchParams.get('separator') ?? '-';
+    if (!SEPARATORS.includes(separator)) {
+      return send(res, 400, { error: `separator must be one of: ${SEPARATORS.join(', ')}` });
+    }
+    return send(res, 200, { text, slug: slugify(text, separator) });
   }
 
   return send(res, 404, { error: 'not found' });

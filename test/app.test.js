@@ -50,6 +50,29 @@ test('GET /slug with overlong text is a 400', async () => {
   assert.equal(res.status, 400);
 });
 
+test('GET /slug with separator=_ joins words with underscores', async () => {
+  const res = await fetch(`${base}/slug?text=${encodeURIComponent('Night Gate, Demo!')}&separator=_`);
+  assert.equal(res.status, 200);
+  assert.deepEqual(await res.json(), { text: 'Night Gate, Demo!', slug: 'night_gate_demo' });
+});
+
+test('GET /slug with separator=- is the default slug', async () => {
+  const res = await fetch(`${base}/slug?text=${encodeURIComponent('Night Gate')}&separator=-`);
+  assert.equal(res.status, 200);
+  assert.deepEqual(await res.json(), { text: 'Night Gate', slug: 'night-gate' });
+});
+
+test('GET /slug with an empty separator is a 400', async () => {
+  const res = await fetch(`${base}/slug?text=hello&separator=`);
+  assert.equal(res.status, 400);
+});
+
+test('GET /slug with an unsupported separator is a 400', async () => {
+  const res = await fetch(`${base}/slug?text=hello&separator=${encodeURIComponent('/')}`);
+  assert.equal(res.status, 400);
+  assert.deepEqual(await res.json(), { error: 'separator must be one of: -, _' });
+});
+
 test('unknown paths are a 404', async () => {
   const res = await fetch(`${base}/nope`);
   assert.equal(res.status, 404);

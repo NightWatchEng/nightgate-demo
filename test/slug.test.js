@@ -17,3 +17,20 @@ test('strips accents', () => {
 test('returns an empty string when nothing is left', () => {
   assert.equal(slugify('!!!'), '');
 });
+
+test('joins words with the separator it is given', () => {
+  assert.equal(slugify('Hello World, Again', '_'), 'hello_world_again');
+});
+
+test('trims a leading or trailing underscore separator', () => {
+  assert.equal(slugify('--Hello__World--', '_'), 'hello_world');
+});
+
+test('trims a leading or trailing hyphen separator', () => {
+  assert.equal(slugify('__Hello--World__', '-'), 'hello-world');
+});
+
+test('refuses a separator other than - or _', () => {
+  assert.throws(() => slugify(' a b ', '.'), RangeError);
+  assert.throws(() => slugify('a b', '$&'), RangeError);
+});
