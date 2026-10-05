@@ -17,3 +17,11 @@ test('strips accents', () => {
 test('returns an empty string when nothing is left', () => {
   assert.equal(slugify('!!!'), '');
 });
+
+test('joins words with the separator it is given', () => {
+  assert.equal(slugify('Hello World, Again', '_'), 'hello_world_again');
+});
+
+test('trims a leading or trailing separator of either kind', () => {
+  assert.equal(slugify('--Hello__World--', '_'), 'hello_world');
+});

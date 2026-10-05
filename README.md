@@ -9,7 +9,9 @@ dependencies). It turns text into URL slugs.
 | `GET /version` | `{"name":"nightgate-demo","version":"1.0.0"}`, read from `package.json` |
 | `GET /slug?text=Hello%20World` | `{"text":"Hello World","slug":"hello-world"}` |
 
-`text` is required and at most 200 characters; anything else is a `400`.
+`text` is required and at most 200 characters. `separator` is optional:
+`-` (the default) or `_`, as in `GET /slug?text=Hello%20World&separator=_`,
+which returns `"slug":"hello_world"`. Anything else is a `400`.
 
 ## Run it
 

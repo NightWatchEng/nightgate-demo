@@ -7,6 +7,7 @@ const pkg = JSON.parse(readFileSync(new URL('../package.json', import.meta.url),
 const VERSION = { name: pkg.name, version: pkg.version };
 
 const MAX_TEXT_LENGTH = 200;
+const SEPARATORS = ['-', '_'];
 
 function send(res, status, body) {
   res.writeHead(status, { 'content-type': 'application/json' });
@@ -37,7 +38,11 @@ function handle(req, res) {
     if (text.length > MAX_TEXT_LENGTH) {
       return send(res, 400, { error: `text must be at most ${MAX_TEXT_LENGTH} characters` });
     }
-    return send(res, 200, { text, slug: slugify(text) });
+    const separator = url.searchParams.get('separator') ?? '-';
+    if (!SEPARATORS.includes(separator)) {
+      return send(res, 400, { error: `separator must be one of: ${SEPARATORS.join(', ')}` });
+    }
+    return send(res, 200, { text, slug: slugify(text, separator) });
   }
 
   return send(res, 404, { error: 'not found' });
