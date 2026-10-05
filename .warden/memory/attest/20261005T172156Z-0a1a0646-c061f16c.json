@@ -1,0 +1,36 @@
+{
+  "schema": 1,
+  "source": "attest",
+  "sha": "0a1a064686bb8fe87f9e370eb9fb476240b0f4fd",
+  "base_sha": "1ab7b99ee80d397b8ee8f21e33f0cbb65fe0490f",
+  "rules_version": "958ad70ff7a5",
+  "reviewed_at": "2026-10-05T17:21:56+00:00",
+  "range_patch_ids": [
+    "4fcd5e0e89364784962c8af297cafac5e5b6ecdf"
+  ],
+  "verdict": "clean",
+  "reviewers": [
+    {
+      "role": "code-reviewer",
+      "agent": "general-purpose subagent, independent context (finder over the review package)",
+      "round": 1,
+      "returned": true,
+      "findings": 0,
+      "output": "code-reviewer.json",
+      "outcome": "reviewed-clean"
+    },
+    {
+      "role": "cross-examiner",
+      "agent": "general-purpose subagent, independent context (judge over candidates.json, empty)",
+      "round": 1,
+      "returned": true,
+      "findings": 0,
+      "output": "cross-examiner.json",
+      "outcome": "reviewed-clean"
+    }
+  ],
+  "roster_verification": "verified",
+  "round_binding": "bound",
+  "base_ancestry": "ancestor",
+  "records": []
+}
