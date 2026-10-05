@@ -1,0 +1,84 @@
+{
+  "schema": 1,
+  "source": "attest",
+  "sha": "08fdfd06c706af186d9b1e35f17f4d7e6b2df3b8",
+  "base_sha": "ce70fc11247a694a8abed747c3b3a0234d3c24c7",
+  "rules_version": "958ad70ff7a5",
+  "reviewed_at": "2026-10-05T15:35:58+00:00",
+  "range_patch_ids": [
+    "af18dc224c285fe2ab0bf86d0abfa408057da3cd"
+  ],
+  "verdict": "clean",
+  "reviewers": [
+    {
+      "role": "code-reviewer",
+      "agent": "general-purpose subagent (claude-opus-5-5), finder",
+      "round": 1,
+      "returned": true,
+      "findings": 2,
+      "output": "code-reviewer.json",
+      "outcome": "reviewed-findings"
+    },
+    {
+      "role": "cross-examiner",
+      "agent": "general-purpose subagent (claude-opus-5-5), judge",
+      "round": 1,
+      "returned": true,
+      "findings": 2,
+      "output": "cross-examiner.json",
+      "outcome": "reviewed-findings"
+    }
+  ],
+  "roster_verification": "verified",
+  "round_binding": "bound",
+  "base_ancestry": "ancestor",
+  "records": [
+    {
+      "ts": "2026-10-05T15:35:58+00:00",
+      "seq": 0,
+      "source": "attest",
+      "sha": "08fdfd06c706af186d9b1e35f17f4d7e6b2df3b8",
+      "base_sha": "ce70fc11247a694a8abed747c3b3a0234d3c24c7",
+      "rule_id": "unmapped:docs-drift",
+      "tags": [
+        "docs-drift"
+      ],
+      "dir_prefix": ".github/workflows",
+      "file": ".github/workflows/warden.yml",
+      "line": 8,
+      "severity": "LOW",
+      "finding": "The header and the credential step's log line describe NightWatchEng/nightgate as a public repository that the job clones over https without a credential, and say the deploy key is needed only for a private pin. At review time `gh repo view NightWatchEng/nightgate --json visibility` returns PRIVATE, so the no-key path cannot succeed at any pin, v3.0.3 included. The behaviour still fails closed: the clone fails and the step exits 2 with 'the gate DID NOT RUN'. This repository has NIGHTGATE_DEPLOY_KEY set, so its CI takes the ssh path. The drift is only in the wording, but a reader who removes the key on the strength of this comment breaks the gate. The file is a byte-for-byte copy of warden/templates/init/workflow.yml at v3.0.3, so the wording comes from upstream.",
+      "evidence": "#          for NightWatchEng/nightgate that only a private pin needs (\"CI\n...\n#          With no key it clones the public repository over https with no\n#          credential, and refuses only when that clone fails.\n...\necho \"NIGHTGATE_DEPLOY_KEY is empty, so the platform is cloned from the public NightWatchEng/nightgate over https with no credential.\"",
+      "status": "dismissed-with-reason",
+      "origin": "interactive",
+      "reason": "Not fixed in this repository: the workflow must stay byte-identical to a fresh v3.0.3 enrollment, which is what the upgrade copies. The wording becomes true when the founder flips NightWatchEng/nightgate public, the open public-ready epic agentops-hy6o tonight; until then the no-key path fails closed and this repository keeps its key (agentops-hy6o.47 half B deletes it only after the flip).",
+      "lens": "code-reviewer",
+      "round": 1,
+      "id": "dd7c8caada22ea95"
+    },
+    {
+      "ts": "2026-10-05T15:35:58+00:00",
+      "seq": 1,
+      "source": "attest",
+      "sha": "08fdfd06c706af186d9b1e35f17f4d7e6b2df3b8",
+      "base_sha": "ce70fc11247a694a8abed747c3b3a0234d3c24c7",
+      "rule_id": "unmapped:artifact-exposure",
+      "tags": [
+        "fail-open",
+        "secret-exposure"
+      ],
+      "dir_prefix": ".github/workflows",
+      "file": ".github/workflows/warden.yml",
+      "line": 164,
+      "severity": "LOW",
+      "finding": "The diff deletes the 'require a private repository' step, but the install job still builds the wheel with a deploy key whenever one is set. That covers NIGHTGATE_DEPLOY_KEY for the nightgate repo, which is private today, and the AGENTOPS_DEPLOY_KEY fallback for NightWatchEng/agentops, also private. The job then uploads that wheel as a run artifact. On a public consumer repository, anyone who can read the run can download a wheel built from a private repository, which is the exposure the deleted guard refused. The guard should have been narrowed to the keyed (non-anonymous) path, not removed. The impact here is nil because nightgate-demo is PRIVATE, so this is LOW for this repository. The template ships the same code to every enrolled consumer.",
+      "evidence": "-      - name: require a private repository\n-        ...\n-          if [ \"$REPOSITORY_PRIVATE\" != true ]; then\n...\n      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1\n        with:\n          name: warden-wheel\n          path: ${{ runner.temp }}/warden-wheel/${{ steps.build.outputs.wheel }}",
+      "status": "dismissed-with-reason",
+      "origin": "interactive",
+      "reason": "Upstream template defect, not this repository's: nightgate-demo is private, so nothing is exposed here, and the workflow must stay byte-identical to a fresh v3.0.3 enrollment. Tracked as agentops-hy6o.48 (narrow the private-repository guard to the keyed path).",
+      "lens": "code-reviewer",
+      "round": 1,
+      "id": "53015d4eace304a5"
+    }
+  ]
+}
